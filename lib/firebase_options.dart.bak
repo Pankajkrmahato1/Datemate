@@ -1,0 +1,68 @@
+import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'DateMate (MVP)',
+      theme: ThemeData(primarySwatch: Colors.pink),
+      home: const FirebaseTestScreen(),
+    );
+  }
+}
+
+class FirebaseTestScreen extends StatefulWidget {
+  const FirebaseTestScreen({super.key});
+  @override
+  State<FirebaseTestScreen> createState() => _FirebaseTestScreenState();
+}
+
+class _FirebaseTestScreenState extends State<FirebaseTestScreen> {
+  String _status = 'Not initialized';
+
+  @override
+  void initState() {
+    super.initState();
+    // Simple sanity check: confirm Firebase.apps is non-empty
+    final apps = Firebase.apps; // returns list of configured apps
+    setState(() {
+      _status = (apps.isNotEmpty) ? 'Firebase initialized (${apps.length} app(s))' : 'Firebase not initialized';
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('DateMate — Firebase Test')),
+      body: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(_status, style: const TextStyle(fontSize: 18)),
+            const SizedBox(height: 18),
+            ElevatedButton(
+              onPressed: () async {
+                // Quick runtime feedback
+                final apps = Firebase.apps;
+                final snack = 'Apps: ${apps.map((a) => a.name).join(', ')}';
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(snack)));
+              },
+              child: const Text('Show configured Firebase apps'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
